@@ -24,7 +24,34 @@ This shows a couple of non-obvious features:
 
 1. You can call ```set_name(ea, string)``` explicitly to give a name to (the thing pointed to by) an element of the struct.  This works without having to explicitly make a null-operation because set_name() returns ```True``` on success.
 
-Eventually: On a structure element, "ida-namer: name: foo" will allow naming something pointed to by this structure to be named, similarly to "ida-namer: foo" allowing this instance of a structure itself to be named.
+... and a bit of what it did from that:
 
-Eventually: Use on data is currently "ida-namer: autonamed", which will allow ida-namer to change the name of that thing again.  If you want to keep the names of auto-named things, even if the naming convention would make it change, then delete this comment, and ida-namer will leave the data element alone.
+    .data:00000000618DF4A8 idcfunc_t_set_enum_idx ext_idcfunc_t <offset aSetEnumIdx_0, offset idcfunc_set_enum_idx, \ ; "set_enum_idx"
+    .data:00000000618DF4A8                                offset dword_615562B4, 0, 0, EXTFUN_BASE>; 0
+    .data:00000000618DF4D0 idcfunc_t_set_enum_name ext_idcfunc_t <offset aSetEnumName_0, offset idcfunc_set_enum_name, \ ; "set_enum_name"
+    .data:00000000618DF4D0                                offset qword_61556310, 0, 0, EXTFUN_BASE>; 0
+    .data:00000000618DF4F8 idcfunc_t_set_enum_cmt ext_idcfunc_t <offset aSetEnumCmt_0, offset idcfunc_set_enum_cmt, \ ; "set_enum_cmt"
+    .data:00000000618DF4F8                                offset qword_61556370, 0, 0, EXTFUN_BASE>; 0
+    .data:00000000618DF520 idcfunc_t_set_enum_flag ext_idcfunc_t <offset aSetEnumFlag_0, offset idcfunc_set_enum_flag, \ ; "set_enum_flag"
+    .data:00000000618DF520                                offset qword_615563E0, 0, 0, EXTFUN_BASE>; 0
 
+    .text:000000006131B380 ; [00000025 BYTES: COLLAPSED FUNCTION idcfunc_set_enum_idx. PRESS CTRL-NUMPAD+ TO EXPAND]
+    .text:000000006131B3A5 algn_6131B3A5:                          ; DATA XREF: .text:00000000618C1190↓o
+    .text:000000006131B3A5                 align 10h
+    .text:000000006131B3B0 ; [00000096 BYTES: COLLAPSED FUNCTION idcfunc_get_event_exc_info. PRESS CTRL-NUMPAD+ TO EXPAND]
+    .text:000000006131B446 algn_6131B446:                          ; DATA XREF: .text:00000000618C119C↓o
+    .text:000000006131B446                 align 10h
+    .text:000000006131B450 ; [00000025 BYTES: COLLAPSED FUNCTION idcfunc_add_func. PRESS CTRL-NUMPAD+ TO EXPAND]
+    .text:000000006131B475 algn_6131B475:                          ; DATA XREF: .text:00000000618C11A8↓o
+    .text:000000006131B475                 align 20h
+    .text:000000006131B480 ; [0000005F BYTES: COLLAPSED FUNCTION idcfunc_trim. PRESS CTRL-NUMPAD+ TO EXPAND]
+    .text:000000006131B4DF algn_6131B4DF:                          ; DATA XREF: .text:00000000618C11B4↓o
+    .text:000000006131B4DF                 align 20h
+    .text:000000006131B4E0 ; [00000033 BYTES: COLLAPSED FUNCTION idcfunc_set_enum_name. PRESS CTRL-NUMPAD+ TO EXPAND]
+    .text:000000006131B513 algn_6131B513:                          ; DATA XREF: .text:00000000618C11C0↓o
+    .text:000000006131B513                 align 20h
+
+
+TODO: On a structure element, "ida-namer: name: foo" will allow naming something pointed to by this structure to be named, similarly to "ida-namer: foo" allowing this instance of a structure itself to be named.
+
+TODO: Use on data is currently "ida-namer: autonamed", which will allow ida-namer to change the name of that thing again.  If you want to keep the names of auto-named things, even if the naming convention would make it change, then delete this comment, and ida-namer will leave the data element alone.
