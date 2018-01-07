@@ -10,12 +10,12 @@ def handle_struct_comment(struct_id, comment):
     s_name = get_struc_name(struct_id)
 
     for line in our_line_re.findall(comment):
-        #print "Our comment: {}".format(line)
+        print "Our comment: {}".format(line)
         code = compile(line, "ida-namer struct comment "+s_name, 'eval')
 
         for xref in idautils.XrefsTo(struct_id):
             s_ea = xref.frm
-            print "{} at {:#x}".format(s_name, s_ea)
+            #print "{} at {:#x}".format(s_name, s_ea)
             #print "xref: t#{} t {} {:#x} -> {:#x}".format(xref.type, idautils.XrefTypeName(xref.type), xref.frm, xref.to)
 
             s = {}
@@ -58,11 +58,10 @@ def handle_struct_comment(struct_id, comment):
                     #print " is_off0"
                     off_flags = get_flags(value)
                     if is_strlit(off_flags):
-                        #print " off_is_strlit"
                         strlen = get_max_strlit_length(value, 0)
-                        str = get_bytes(value, strlen-1)
-                        #print "New value: {}".format(str)
-                        s[mname] = str
+                        if strlen > 0:
+                            str = get_bytes(value, strlen-1)
+                            s[mname] = str
                 
                 
                 if is_strlit(flags):
@@ -70,10 +69,12 @@ def handle_struct_comment(struct_id, comment):
 
                 offset = get_struc_next_offset(s_obj, offset)
 
-            print "s: {}".format(s)
+            print "{:#x} s: {}".format(s_ea, s)
             inst_name = eval(code)
-            print "Instance Name: {}".format(inst_name)
+            print "Instance Name for {:#x}: {}".format(s_ea, inst_name)
             if inst_name and inst_name != True:
+                inst_name = re.sub(r'[ ]', '_', inst_name, 0)
+                inst_name = re.sub(r'!', '_excl_', inst_name, 0)
                 set_name(xref.frm, inst_name)
             
 
@@ -86,6 +87,32 @@ def is_bad(ea):
     if ea == 0xffffffffffffffff:
         return True
     return False
+
+# FIXME: Genericify more?
+lookfor_pairs = [[0x14154A230, "SettingT_int"], # const SettingT<class INISettingCollection>::`vftable'
+                 [0x14154EC48, "SettingT_int"], # const SettingT<class INIPrefSettingCollection>::`vftable'
+                 [0x141539C88, "SettingT_int"], # const SettingT<class GameSettingCollection>::`vftable
+                 [0x14172E0D0, "hkDescription"], # aHkDescription
+                 [0x14172E0B8, "hkbRoleattribute"], # db 'hkb.RoleAttribute
+]
+
+for lookfor_pair in lookfor_pairs:
+    lookfor = lookfor_pair[0]
+    makeinto = lookfor_pair[1]
+    makeinto_tid = get_struc_id(makeinto)
+    makeinto_size = ida_struct.get_struc_size(makeinto_tid)
+
+    print "Checking for {:#x} -> {}".format(lookfor, makeinto)
+    for xref in idautils.XrefsTo(lookfor):
+        s_ea = xref.frm
+        if not is_code(get_flags(s_ea)):
+            print "Changing {:#x} into struct {:#x} ({})".format(s_ea, makeinto_tid, makeinto)
+            ida_bytes.del_items(s_ea, 0, makeinto_size)
+            ida_bytes.create_struct(s_ea, makeinto_size, makeinto_tid)
+        else:
+            print "Skipping {:#x} into struct {:#x} ({}) (is code)".format(s_ea, makeinto_tid, makeinto)
+            
+
 
 this_struct_idx = ida_struct.get_first_struc_idx()
 while not is_bad(this_struct_idx):
